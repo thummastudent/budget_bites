@@ -17,14 +17,15 @@ class DatabaseHelper {
 
   // meals columns
   static const String columnMealName = 'name';
-  static const String columnMealPrice = 'price';
+  static const String columnMealVenueNote = 'venue_note';
   static const String columnMealCuisine = 'cuisine';
+  static const String columnMealEstimatedPriceMinor = 'estimated_price_minor';
 
   // purchase_logs columns
   static const String columnLogMealId = 'meal_id';
-  static const String columnLogAmount = 'amount';
-  static const String columnLogDate = 'date';
-  static const String columnLogNotes = 'notes';
+  static const String columnLogPurchasedAt= 'purchased_at';
+  static const String columnLogActualPriceMinor = 'actual_price_minor';
+  static const String columnLogNote = 'note';
 
 
   // Get database instance
@@ -58,19 +59,19 @@ class DatabaseHelper {
       CREATE TABLE $tableMeals (
         $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
         $columnMealName TEXT NOT NULL,
-        $columnMealPrice REAL NOT NULL,
-        $columnMealCuisine TEXT NOT NULL
+        $columnMealVenueNote TEXT NOT NULL DEFAULT '',
+        $columnMealCuisine TEXT NOT NULL,
+        $columnMealEstimatedPriceMinor INTEGER NOT NULL
       )
     ''');
 
-  // Create the purchase_logs table w/ foreign key reference to meals
     await db.execute('''
       CREATE TABLE $tablePurchaseLogs (
         $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
         $columnLogMealId INTEGER NOT NULL,
-        $columnLogAmount REAL NOT NULL,
-        $columnLogDate TEXT NOT NULL,
-        $columnLogNotes TEXT NOT NULL DEFAULT '',
+        $columnLogPurchasedAt TEXT NOT NULL,
+        $columnLogActualPriceMinor INTEGER NOT NULL,
+        $columnLogNote TEXT NOT NULL DEFAULT '',
         FOREIGN KEY ($columnLogMealId) 
           REFERENCES $tableMeals ($columnId) 
           ON DELETE CASCADE
