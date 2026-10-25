@@ -48,7 +48,7 @@ class DatabaseHelper {
     );
   }
 
-  // Enforce foreign key constraints
+  // foreign key constraints
   Future<void> _onConfigure(Database db) async {
     await db.execute('PRAGMA foreign_keys = ON');
   }
@@ -87,13 +87,13 @@ class DatabaseHelper {
   // CREATE - Add a new meal entry
   Future<int> insertMeal(Map<String, dynamic> row) async {
     final db = await database;
-    return await db.insert($tableMeals, row);
+    return await db.insert(tableMeals, row);
   }
 
   // READ - Get all meals
   Future<List<Map<String, dynamic>>> getAllMeals() async {
     final db = await database;
-    return await db.query($tableMeals, orderBy: '$columnMealName ASC');
+    return await db.query(tableMeals, orderBy: '$columnMealName ASC');
   }
 
   // READ - Get a single meal by its ID
@@ -143,14 +143,14 @@ class DatabaseHelper {
       tablePurchaseLogs,
       where: '$columnLogMealId = ?',
       whereArgs: [mealId],
-      orderBy: '$columnLogDate DESC',
+      orderBy: '$columnLogPurchasedAt DESC',
     );
   }
 
   // READ - Get all purchase logs, ordered by date  
   Future<List<Map<String, dynamic>>> getAllLogs() async {
     final db = await database;
-    return await db.query(tablePurchaseLogs, orderBy: '$columnLogDate DESC');
+    return await db.query(tablePurchaseLogs, orderBy: '$columnLogPurchasedAt DESC');
   }
 
   // UPDATE - Modify existing purchase log entry
@@ -179,9 +179,9 @@ class DatabaseHelper {
   Future<double> getTotalSpending() async {
     final db = await database;
     final result = await db.rawQuery(
-      'SELECT SUM($columnLogAmount) as total FROM $tablePurchaseLogs',
+      'SELECT SUM($columnLogActualPriceMinor) as total FROM $tablePurchaseLogs',
     );
-    return (result.first['total'] as num?)?.toDouble() ?? 0.0;
+    return (result.first['total'] as num?)?.toDouble() ?? 0;
   }
 
   // Close database connection
