@@ -3,6 +3,7 @@ import '../database/database_helper.dart';
 import '../models/meal.dart';
 import 'meal_form.dart';
 import 'settings.dart';
+import 'activity.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -175,6 +176,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ],
                           ),
                         )
+                      
+                      // list view builder to display the meals in the dashboard
                       : ListView.builder(
                           itemCount: _filteredDashboardMeals.length,
                           itemBuilder: (context, index) {
@@ -191,6 +194,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                               child: DashboardCard(
                                 meal: meal,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ActivityScreen(meal: meal),
+                                    ),
+                                  );
+                                },
                                 onEdit: () => _openMealEditor(meal),
                                 onDelete: () => _confirmAndDeleteMeal(meal),
                               ),
@@ -200,6 +211,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ],
             ),
+
+      // add meal button at the bottom of the dashboard
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(12.0),
         child: ElevatedButton(
@@ -217,14 +230,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 }
 
+// dashboard card widget to display meal information in the list
 class DashboardCard extends StatelessWidget {
   final Meal meal;
+  final VoidCallback onTap;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
   const DashboardCard({
     super.key,
     required this.meal,
+    required this.onTap,
     required this.onEdit,
     required this.onDelete,
   });
@@ -236,6 +252,7 @@ class DashboardCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
       child: ListTile(
+        onTap: onTap,
         leading: const Icon(Icons.fastfood, size: 30),
         title: Text(meal.name, style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text('${meal.cuisine} • ${meal.venueNote.isEmpty ? "No venue note" : meal.venueNote}'),
