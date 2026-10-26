@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'screens/meal_form.dart';
 import 'models/meal.dart';
+import 'screens/dashboard.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,14 +18,14 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
-        colorSchemeSeed: Colors.teal,
+        colorSchemeSeed: Colors.orange,
         brightness: Brightness.light,
         
         // Global input box  w/ rounded corners
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16.0), // Adjust corner radius here (e.g., 12, 16, 24)
+            borderRadius: BorderRadius.circular(16.0), 
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16.0),
@@ -37,14 +38,15 @@ class MyApp extends StatelessWidget {
         ),
       ),
 
+      // Global dark theme
       darkTheme: ThemeData(
         useMaterial3: true,
         colorSchemeSeed: Colors.teal,
         brightness: Brightness.dark,
       ),
       themeMode: ThemeMode.system,
-      // In lib/main.dart:
-      home: const MealForm(),
+
+      home: const DashboardScreen(),
     );
   }
 }
