@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
+  
+  // constructor
   const SettingsScreen({super.key});
 
   @override
@@ -8,8 +11,29 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  // Budget cap stored in dollars for UI display (default: $50)
+  // default budget set to 50
   double _budgetCap = 50.0;
+  bool _isSaving = false;
+
+  // write budget cap to local key-value storage (shared_preferences)
+  Future<void> _saveBudgetCap() async {
+    setState(() {
+      _isSaving = true;
+    });
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('weekly_budget_cap', _budgetCap);
+
+    if (!mounted) return;
+
+    setState(() {
+      _isSaving = false;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Budget saved')),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,15 +46,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            
+            // display current budget 
             const Text(
               'Weekly Budget',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
+            
+            // display current budget value
             const SizedBox(height: 8),
             Text(
               '\$${_budgetCap.toStringAsFixed(0)}',
               style: const TextStyle(fontSize: 24, color: Colors.blue),
             ),
+
+            // slider for budget adjustment
             Slider(
               value: _budgetCap,
               min: 10.0,
@@ -43,12 +73,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 });
               },
             ),
+
+            // save button 
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                // Save logic will be wired in Criterion 3
+                
+                // save logic to be created 
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Budget cap updated!')),
+                  const SnackBar(content: Text('Budget updated')),
                 );
               },
               child: const Text('Save Settings'),
