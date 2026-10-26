@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../database/database_helper.dart';
 import '../models/meal.dart';
 import 'meal_form.dart';
+import 'settings.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -110,7 +111,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         title: const Text('Meals'),
         centerTitle: true,
-      ),
+      actions: [
+    IconButton(
+      icon: const Icon(Icons.settings),
+      tooltip: 'Settings',
+      onPressed: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const SettingsScreen(),
+          ),
+        );
+      },
+    ),
+  ],
+),
       
       // if loading, show loading, else show the list of meals
       body: _isLoading
