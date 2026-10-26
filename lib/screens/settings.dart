@@ -14,9 +14,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // default budget set to 50
   double _budgetCap = 50.0;
   bool _isSaving = false;
+  bool _isLoading = true;
+
+
+// load the budget from shared_preferences
+  @override
+  void initState() {
+    super.initState();
+    _loadBudgetCap();
+  }
 
   // write budget cap to local key-value storage (shared_preferences)
-  Future<void> _saveBudgetCap() async {
+  Future<void> _loadBudgetCap() async {
+    final prefs = await SharedPreferences.getInstance();
+    
+    // default to 50 if no value is found
+    final savedCap = prefs.getDouble('weekly_budget_cap') ?? 50.0;
+
+    if (!mounted) return;
+    
+    // update the state with the loaded budget 
+    setState(() {
+      _budgetCap = savedCap;
+      _isLoading = false;
+    });
+  }
+    
+    
+   // save the budget to shared_preferences 
+  Future<void> _saveBudgetCap() async {  
     setState(() {
       _isSaving = true;
     });
@@ -65,7 +91,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               value: _budgetCap,
               min: 10.0,
               max: 200.0,
-              divisions: 38, // $5 increments
+              divisions: 38, // increments by 5
               label: '\$${_budgetCap.toStringAsFixed(0)}',
               onChanged: (double value) {
                 setState(() {
@@ -77,14 +103,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // save button 
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {
-                
-                // save logic to be created 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Budget updated')),
-                );
-              },
-              child: const Text('Save Settings'),
+              onPressed: _isSaving ? null : _saveBudgetCap,
+              child: _isSaving
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Save Settings'),
             ),
           ],
         ),
