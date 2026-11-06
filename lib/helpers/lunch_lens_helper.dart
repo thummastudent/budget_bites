@@ -69,7 +69,7 @@ LunchLensResult estimateNextMeal(List<int> costsNewestFirst) {
 
   return LunchLensResult(
     estimateCents: estimate,
-    baselineCents: null,
+    baselineCents: recent[0], // this part is the last price you paid so we can compare it to the average
     costsUsed: recent,
     reason: 'Based on your last 3 logs here',
   );
