@@ -50,6 +50,27 @@ LunchLensResult estimateNextMeal(List<int> costsNewestFirst) {
     return notEnoughData();
   }
 
-  // TODO average goes here next
-  return notEnoughData();
+  // this part grabs the 3 newest costs
+  List<int> recent = [];
+  int i = 0;
+  while (i < logsNeeded) {
+    recent.add(costsNewestFirst[i]);
+    i++;
+  }
+
+  // this part adds them up and divides so we get the average
+  int total = 0;
+  int j = 0;
+  while (j < recent.length) {
+    total += recent[j];
+    j++;
+  }
+  int estimate = (total / recent.length).round(); // round so its a whole number of cents
+
+  return LunchLensResult(
+    estimateCents: estimate,
+    baselineCents: null,
+    costsUsed: recent,
+    reason: 'Based on your last 3 logs here',
+  );
 }
