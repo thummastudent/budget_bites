@@ -45,8 +45,18 @@ LunchLensResult notEnoughData() {
 
 // this part makes the guess so costsNewestFirst is the past costs in cents with the newest one first
 LunchLensResult estimateNextMeal(List<int> costsNewestFirst) {
-  // this part stops early if theres less than 3 purchases so its not really a pattern yet
-  if (costsNewestFirst.length < logsNeeded) {
+  // this part skips any bad costs like 0 or negative so they dont mess up the guess
+  List<int> validCosts = [];
+  int k = 0;
+  while (k < costsNewestFirst.length) {
+    if (costsNewestFirst[k] > 0) {
+      validCosts.add(costsNewestFirst[k]);
+    }
+    k++;
+  }
+
+  // this part stops early if theres less than 3 good purchases so its not really a pattern yet
+  if (validCosts.length < logsNeeded) {
     return notEnoughData();
   }
 
@@ -54,7 +64,7 @@ LunchLensResult estimateNextMeal(List<int> costsNewestFirst) {
   List<int> recent = [];
   int i = 0;
   while (i < logsNeeded) {
-    recent.add(costsNewestFirst[i]);
+    recent.add(validCosts[i]);
     i++;
   }
 
