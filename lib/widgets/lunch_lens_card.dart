@@ -16,10 +16,18 @@ class LunchLensCard extends StatefulWidget {
 }
 
 class _LunchLensCardState extends State<LunchLensCard> {
+  // this part runs when they hit apply so it sends the guess back to fill the cost box
+  // it only fills the box and nothing saves until they hit save on the form
+  void applyGuess() {
+    int guessCents = widget.result.estimateCents!;
+    double dollars = guessCents / 100;
+    String price = dollars.toStringAsFixed(2); // like 8.95 with no dollar sign since the box already has one
+    widget.onApply(price);
+  }
+
   @override
   Widget build(BuildContext context) {
     LunchLensResult result = widget.result;
-
 
     // this part shows a simple card if theres not enough purchases yet so we dont try to guess
     if (result.hasEstimate == false) {
@@ -41,7 +49,6 @@ class _LunchLensCardState extends State<LunchLensCard> {
               const Text('Log 3 purchases here to get a guess.'),
             ],
           ),
-        
         ),
       );
     }
@@ -86,6 +93,18 @@ class _LunchLensCardState extends State<LunchLensCard> {
 
             // this part shows the prices it used so the user knows why
             Text(result.reason),
+            const SizedBox(height: 8),
+
+            // this part is the buttons row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  onPressed: applyGuess,
+                  child: const Text('Apply'),
+                ),
+              ],
+            ),
           ],
         ),
       ),
