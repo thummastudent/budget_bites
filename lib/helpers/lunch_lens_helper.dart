@@ -77,10 +77,19 @@ LunchLensResult estimateNextMeal(List<int> costsNewestFirst) {
   }
   int estimate = (total / recent.length).round(); // round so its a whole number of cents
 
+  // this part lists the prices oldest to newest so it reads like a timeline
+  List<String> shown = [];
+  int m = recent.length - 1;
+  while (m >= 0) {
+    shown.add(formatMoney(recent[m]));
+    m--;
+  }
+  String reason = 'Based on your last 3 logs here: ' + shown.join(', ');
+
   return LunchLensResult(
     estimateCents: estimate,
     baselineCents: recent[0], // this part is the last price you paid so we can compare it to the average
     costsUsed: recent,
-    reason: 'Based on your last 3 logs here',
+    reason: reason,
   );
 }
