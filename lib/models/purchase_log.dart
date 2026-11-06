@@ -26,18 +26,17 @@ class PurchaseLog {
     };
   }
 
-  // Create PurchaseLog object from database Map query result
+// Create PurchaseLog object from database Map query result
   factory PurchaseLog.fromMap(Map<String, dynamic> map) {
     return PurchaseLog(
       id: map['id'] as int?,
-      mealId: map['meal_id'] as int,
-      purchasedAt: DateTime.parse(map['purchased_at'] as String),
-      actualPriceMinor: map['actual_price_minor'] as int,
-      note: (map['note'] as String?) ?? '',
+      mealId: (map['meal_id'] ?? map['mealId']) as int,
+      purchasedAt: DateTime.parse((map['purchased_at'] ?? map['date']) as String),
+      actualPriceMinor: (map['actual_price_minor'] ?? map['amount'] ?? 0) as int,
+      note: (map['note'] ?? map['notes'] ?? '') as String,
     );
   }
-
-  // Helper method - updates records without changing the original object
+  // Helper method updates records without changing the original object
   PurchaseLog copyWith({
     int? id,
     int? mealId,
