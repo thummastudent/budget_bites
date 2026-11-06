@@ -28,3 +28,28 @@ String formatMoney(int cents) {
   String withTwoDecimals = dollars.toStringAsFixed(2); // so 8.5 shows as 8.50
   return '\$' + withTwoDecimals; // put the dollar sign in front
 }
+
+
+// this part is how many purchases we need before we guess
+const int logsNeeded = 3;
+
+// this part is what we send back when theres not enough purchases so we dont have to write it twice
+LunchLensResult notEnoughData() {
+  return const LunchLensResult(
+    estimateCents: null,
+    baselineCents: null,
+    costsUsed: [],
+    reason: 'Not enough data yet',
+  );
+}
+
+// this part makes the guess so costsNewestFirst is the past costs in cents with the newest one first
+LunchLensResult estimateNextMeal(List<int> costsNewestFirst) {
+  // this part stops early if theres less than 3 purchases so its not really a pattern yet
+  if (costsNewestFirst.length < logsNeeded) {
+    return notEnoughData();
+  }
+
+  // TODO average goes here next
+  return notEnoughData();
+}
