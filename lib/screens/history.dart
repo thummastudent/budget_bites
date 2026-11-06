@@ -26,7 +26,6 @@ class _HistoryState extends State<History> {
     });
   }
 
-  // Fetch logs and join with meal category info
   Future<List<Map<String, dynamic>>> _fetchLogsWithMeals() async {
     final logs = await DatabaseHelper.instance.getAllLogs();
     final meals = await DatabaseHelper.instance.getAllMeals();
@@ -48,6 +47,32 @@ class _HistoryState extends State<History> {
     return combined;
   }
 
+  void _confirmDeleteLog(int logId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Log'),
+        content: const Text('Are you sure you want to remove this purchase log?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () async {
+              await DatabaseHelper.instance.deletePurchaseLog(logId);
+              if (!mounted) return;
+              Navigator.pop(context);
+              _loadData();
+            },
+            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,7 +85,8 @@ class _HistoryState extends State<History> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Filter chips for categories
+            
+            // Filter chip widget for categories
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -83,7 +109,7 @@ class _HistoryState extends State<History> {
             ),
             const SizedBox(height: 16),
 
-            // sqlite data list with summary cards and empty state handling
+            // SQLite Data Stream
             Expanded(
               child: FutureBuilder<List<Map<String, dynamic>>>(
                 future: _dataFuture,
@@ -99,7 +125,7 @@ class _HistoryState extends State<History> {
                       ? allLogs
                       : allLogs.where((log) => log['category'] == _selectedCategory).toList();
 
-                  // calculates total spent and average spent based on filtered logs
+                  // calculate total and average spent
                   final totalSpentMinor = filteredLogs.fold<int>(
                     0,
                     (sum, log) => sum + (log['costMinor'] as int),
@@ -155,7 +181,7 @@ class _HistoryState extends State<History> {
                       ),
                       const SizedBox(height: 20),
 
-                      // list or empty state message based on filtered logs
+                      // show empty state if no logs, else show list of logs 
                       Expanded(
                         child: filteredLogs.isEmpty
                             ? Card(
@@ -184,9 +210,18 @@ class _HistoryState extends State<History> {
                                         style: const TextStyle(fontWeight: FontWeight.bold),
                                       ),
                                       subtitle: Text('${item['category']} • ${item['dateStr']}'),
-                                      trailing: Text(
-                                        '\$$costStr',
-                                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                      trailing: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            '\$$costStr',
+                                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
+                                            onPressed: () => _confirmDeleteLog(item['id']),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   );
