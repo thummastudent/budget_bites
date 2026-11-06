@@ -112,3 +112,6 @@ Future<LunchLensResult> loadLunchLens(int mealId) async {
     n++;
   }
 
+
+  return estimateNextMeal(costs);
+}
