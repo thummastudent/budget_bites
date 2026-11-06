@@ -16,6 +16,8 @@ class LunchLensCard extends StatefulWidget {
 }
 
 class _LunchLensCardState extends State<LunchLensCard> {
+  bool hidden = false; // this part turns true after they hit not now so the card goes away
+
   // this part runs when they hit apply so it sends the guess back to fill the cost box
   // it only fills the box and nothing saves until they hit save on the form
   void applyGuess() {
@@ -25,12 +27,27 @@ class _LunchLensCardState extends State<LunchLensCard> {
     widget.onApply(price);
   }
 
+  // this part runs when they hit not now so it hides the card
+  void hideCard() {
+    setState(() {
+      hidden = true;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     LunchLensResult result = widget.result;
 
+    // this part shows nothing if they already hit not now
+    if (hidden == true) {
+      return const SizedBox.shrink();
+    }
+
     // this part shows a simple card if theres not enough purchases yet so we dont try to guess
     if (result.hasEstimate == false) {
+      // this part uses logsNeeded so if we change how many purchases it needs the message changes too
+      String needMoreText = 'Log ' + logsNeeded.toString() + ' purchases here to get a guess.';
+
       return Card(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -46,7 +63,7 @@ class _LunchLensCardState extends State<LunchLensCard> {
               ),
               const SizedBox(height: 8),
               Text(result.reason), // this part says not enough data yet
-              const Text('Log 3 purchases here to get a guess.'),
+              Text(needMoreText),
             ],
           ),
         ),
@@ -99,6 +116,11 @@ class _LunchLensCardState extends State<LunchLensCard> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                TextButton(
+                  onPressed: hideCard,
+                  child: const Text('Not now'),
+                ),
+                const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: applyGuess,
                   child: const Text('Apply'),
