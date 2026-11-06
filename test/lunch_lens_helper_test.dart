@@ -30,4 +30,47 @@ void main() {
 
     expect(result.hasEstimate, false);
   });
+
+  // this part checks bad costs like 0 or negative get skipped
+  test('invalid: skips 0 and negative costs', () {
+    List<int> costs = [900, 0, -500, 850, 800];
+    LunchLensResult result = estimateNextMeal(costs);
+
+    expect(result.estimateCents, 850); // it should only use 900 and 850 and 800
+  });
+
+  // this part checks that if bad costs get skipped and theres less than 3 left its not enough
+  test('invalid: not enough data after skipping bad costs', () {
+    List<int> costs = [900, 0, 800];
+    LunchLensResult result = estimateNextMeal(costs);
+
+    expect(result.hasEstimate, false);
+  });
+
+  // this part checks one big group order pulls the guess way up
+  test('outlier: one expensive group order pulls the guess up', () {
+    List<int> costs = [2700, 900, 900]; // a $27 group order then two $9 meals
+    
+    LunchLensResult result = estimateNextMeal(costs);
+
+     expect(result.estimateCents, 1500); // $15 is way too high for a normal meal
+  });
+
+  // this part is where the baseline does better than the average
+  
+  test('counterexample: price went up so the baseline wins', () {
+      List<int> costs = [1200, 800, 800]; // the menu price went up to $12
+      LunchLensResult result = estimateNextMeal(costs);
+
+      expect(result.estimateCents, 933); // the average says $9.33 which is too low now
+      expect(result.baselineCents, 1200); // the last price says $12 which is right
+  });
+
+  // this part checks it only uses the 3 newest and ignores older ones
+  test('only uses the 3 newest costs', () {
+    List<int> costs = [1000, 1000, 1000, 5000];
+    LunchLensResult result = estimateNextMeal(costs);
+
+    expect(result.estimateCents, 1000);
+  });
 }
