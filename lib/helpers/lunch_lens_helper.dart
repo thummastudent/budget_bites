@@ -21,7 +21,10 @@ class LunchLensResult {
 }
 
 
+
 // this part turns cents into dollars so 895 shows up as $8.95
 String formatMoney(int cents) {
-  return '\$${(cents / 100).toStringAsFixed(2)}';
+  double dollars = cents / 100; // 895 becomes 8.95
+  String withTwoDecimals = dollars.toStringAsFixed(2); // so 8.5 shows as 8.50
+  return '\$' + withTwoDecimals; // put the dollar sign in front
 }
