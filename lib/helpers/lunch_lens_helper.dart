@@ -1,3 +1,5 @@
+import '../database/database_helper.dart';
+import '../models/purchase_log.dart';
 // lunch lens guesses how much your next purchase at a meal might cost
 // it uses your last 3 purchases to find an average
 
@@ -90,6 +92,23 @@ LunchLensResult estimateNextMeal(List<int> costsNewestFirst) {
     estimateCents: estimate,
     baselineCents: recent[0], // this part is the last price you paid so we can compare it to the average
     costsUsed: recent,
+    
     reason: reason,
   );
 }
+
+
+// this part gets this meals purchases from sqlite and runs lunch lens on them so the screen just calls this
+// getLogsForMeal already gives them back newest first
+Future<LunchLensResult> loadLunchLens(int mealId) async {
+  List<Map<String, dynamic>> maps = await DatabaseHelper.instance.getLogsForMeal(mealId);
+
+  // this part pulls out just the cost from each purchase
+  List<int> costs = [];
+  int n = 0;
+  while (n < maps.length) {
+    PurchaseLog log = PurchaseLog.fromMap(maps[n]);
+    costs.add(log.actualPriceMinor);
+    n++;
+  }
+
