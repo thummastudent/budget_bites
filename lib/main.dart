@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'screens/meal_form.dart';
 import 'models/meal.dart';
 import 'screens/dashboard.dart';
+import 'screens/history.dart';
+import 'screens/settings.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,6 +40,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
 
+
       // Global dark theme
       darkTheme: ThemeData(
         useMaterial3: true,
@@ -46,7 +49,56 @@ class MyApp extends StatelessWidget {
       ),
       themeMode: ThemeMode.system,
 
-      home: const DashboardScreen(),
+      home: const MainNavigationScaffold(),
+    );
+  }
+}
+
+// Main navigation scaffold with bottom navigation bar
+class MainNavigationScaffold extends StatefulWidget {
+  const MainNavigationScaffold({super.key});
+
+  @override
+  State<MainNavigationScaffold> createState() => _MainNavigationScaffoldState();
+}
+
+class _MainNavigationScaffoldState extends State<MainNavigationScaffold> {
+  int _selectedIndex = 0;
+
+  final List<Widget> _screens = [
+    const DashboardScreen(),
+    const History(),
+    const SettingsScreen(),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _screens[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.restaurant),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.history),
+            label: 'History',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
+      ),
     );
   }
 }
