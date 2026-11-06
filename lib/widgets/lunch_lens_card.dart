@@ -20,6 +20,32 @@ class _LunchLensCardState extends State<LunchLensCard> {
   Widget build(BuildContext context) {
     LunchLensResult result = widget.result;
 
+
+    // this part shows a simple card if theres not enough purchases yet so we dont try to guess
+    if (result.hasEstimate == false) {
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.lightbulb_outline),
+                  SizedBox(width: 8),
+                  Text('Smart helper', style: TextStyle(fontWeight: FontWeight.bold)),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(result.reason), // this part says not enough data yet
+              const Text('Log 3 purchases here to get a guess.'),
+            ],
+          ),
+        
+        ),
+      );
+    }
+
     // this part gets the color from the app theme so it matches light and dark mode
     Color cardColor = Theme.of(context).colorScheme.secondaryContainer;
 
