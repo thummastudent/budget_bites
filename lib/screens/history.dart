@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../database/database_helper.dart';
+import 'dashboard.dart';
+import 'settings.dart';
 
 class History extends StatefulWidget {
   const History({super.key});
