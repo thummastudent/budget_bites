@@ -3,6 +3,7 @@ import '../database/database_helper.dart';
 import '../models/meal.dart';
 import 'meal_form.dart';
 import 'settings.dart';
+import 'detail.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -191,6 +192,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                               child: DashboardCard(
                                 meal: meal,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Details(meal: meal),
+                                    ),
+                                  );
+                                },
                                 onEdit: () => _openMealEditor(meal),
                                 onDelete: () => _confirmAndDeleteMeal(meal),
                               ),
@@ -219,12 +228,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
 class DashboardCard extends StatelessWidget {
   final Meal meal;
+  final VoidCallback onTap;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
   const DashboardCard({
     super.key,
     required this.meal,
+    required this.onTap,
     required this.onEdit,
     required this.onDelete,
   });
@@ -236,6 +247,7 @@ class DashboardCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
       child: ListTile(
+        onTap: onTap, // makes title clickable
         leading: const Icon(Icons.fastfood, size: 30),
         title: Text(meal.name, style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text('${meal.cuisine} • ${meal.venueNote.isEmpty ? "No venue note" : meal.venueNote}'),
