@@ -19,3 +19,9 @@ class LunchLensResult {
     return estimateCents != null;
   }
 }
+
+
+// this part turns cents into dollars so 895 shows up as $8.95
+String formatMoney(int cents) {
+  return '\$${(cents / 100).toStringAsFixed(2)}';
+}
