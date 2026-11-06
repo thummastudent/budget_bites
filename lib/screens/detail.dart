@@ -74,7 +74,7 @@ class _DetailsState extends State<Details> {
       note: _noteController.text.trim(),
     );
 
-    await DatabaseHelper.instance.insertPurchaseLog(log);
+    await DatabaseHelper.instance.insertPurchaseLog(log.toMap());
 
     if (!mounted) return;
 
