@@ -3,6 +3,10 @@ import '../models/meal.dart';
 import '../database/database_helper.dart';
 import '../models/purchase_log.dart';
 
+// lunch lens imports
+import '../helpers/lunch_lens_helper.dart';
+import '../widgets/lunch_lens_card.dart';
+
 class Details extends StatefulWidget {
   final Meal meal;
 
@@ -19,6 +23,7 @@ class _DetailsState extends State<Details> {
   bool _isLogging = false;
   
   late Future<List<PurchaseLog>> _logsFuture;
+  late Future<LunchLensResult> _lunchLensFuture; 
   
   @override
   void initState() {
@@ -36,12 +41,14 @@ class _DetailsState extends State<Details> {
     super.dispose();
   }
 
-  // Refresh the logs for the current meal
+  // Refresh the logs and Lunch Lens data for the current meal
   void _refreshLogs() {
     setState(() {
       _logsFuture = DatabaseHelper.instance.getLogsForMeal(widget.meal.id!).then(
         (maps) => maps.map((map) => PurchaseLog.fromMap(map)).toList(),
       );
+      // 3. Initialize/refresh the Lunch Lens future based on meal ID
+      _lunchLensFuture = loadLunchLens(widget.meal.id!);
     });
   }
 
@@ -93,7 +100,7 @@ class _DetailsState extends State<Details> {
       _noteController.clear();
     });
 
-    _refreshLogs();
+    _refreshLogs(); 
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Meal logged successfully!')),
@@ -131,7 +138,6 @@ class _DetailsState extends State<Details> {
   @override
   Widget build(BuildContext context) {
     final priceFormatted = (widget.meal.estimatedPriceMinor / 100).toStringAsFixed(2);
-   
     final dateStr = '${_selectedDate.month}/${_selectedDate.day}/${_selectedDate.year}';
 
     return Scaffold(
@@ -205,6 +211,27 @@ class _DetailsState extends State<Details> {
             ),
                     
             const SizedBox(height: 20),
+
+            // Integrated Lunch Lens Smart Helper Card via FutureBuilder
+            FutureBuilder<LunchLensResult>(
+              future: _lunchLensFuture,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const SizedBox.shrink(); 
+                }
+                final result = snapshot.data!;
+                return LunchLensCard(
+                  result: result,
+                  onApply: (appliedPrice) {
+                    setState(() {
+                      _costController.text = appliedPrice; 
+                    });
+                  },
+                );
+              },
+            ),
+
+            const SizedBox(height: 12),
 
             // Log meal form (Inline)
             Card(
@@ -285,7 +312,7 @@ class _DetailsState extends State<Details> {
             ),
             const SizedBox(height: 12),
             
-            // Added FutureBuilder to consume the _logsFuture data
+            // FutureBuilder to consume the _logsFuture data
             FutureBuilder<List<PurchaseLog>>(
               future: _logsFuture,
               builder: (context, snapshot) {
@@ -304,7 +331,7 @@ class _DetailsState extends State<Details> {
 
                 final logs = snapshot.data!;
                 return ListView.builder(
-                  shrinkWrap: true, // Prevents layout crash inside SingleChildScrollView
+                  shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: logs.length,
                   itemBuilder: (context, index) {
