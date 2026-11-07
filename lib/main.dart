@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/dashboard.dart';
 import 'screens/history.dart';   
 import 'screens/settings.dart';
@@ -8,8 +9,43 @@ void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+
+  static _MyAppState? of(BuildContext context) =>
+      context.findAncestorStateOfType<_MyAppState>();
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  ThemeMode _themeMode = ThemeMode.system;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadThemePreference();
+  }
+
+  // Load saved theme preference from local storage
+  Future<void> _loadThemePreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isDarkMode = prefs.getBool('is_dark_mode') ?? false;
+    setState(() {
+      _themeMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
+    });
+  }
+
+  // Public method called from settings screen to switch themes dynamically
+  void setThemeMode(bool isDark) async {
+    setState(() {
+      _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
+    });
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('is_dark_mode', isDark);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +79,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
         inputDecorationTheme: roundedInputTheme,
       ),
-      themeMode: ThemeMode.system,
+      themeMode: _themeMode, // 👈 Connected to dynamic state
       home: const MainNavigationScaffold(),
     );
   }
@@ -59,7 +95,6 @@ class MainNavigationScaffold extends StatefulWidget {
 class _MainNavigationScaffoldState extends State<MainNavigationScaffold> {
   int _currentIndex = 0;
 
-  // List of screens connected to the bottom navigation bar
   final List<Widget> _screens = const [
     DashboardScreen(),
     History(), 
