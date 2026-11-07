@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../main.dart'; // Make sure to import main.dart to access MyApp
 
 class SettingsScreen extends StatefulWidget {
-  
-  // constructor
   const SettingsScreen({super.key});
 
   @override
@@ -11,44 +10,45 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  // default budget set to 50
+  static const String _budgetKey = 'weekly_budget_cap';
+  static const String _darkModeKey = 'is_dark_mode';
+
   double _budgetCap = 50.0;
+  bool _isDarkMode = false;
   bool _isSaving = false;
   bool _isLoading = true;
 
-
-// load the budget from shared_preferences
   @override
   void initState() {
     super.initState();
-    _loadBudgetCap();
+    _loadSettings();
   }
 
-  // write budget cap to local key-value storage (shared_preferences)
-  Future<void> _loadBudgetCap() async {
+  Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    
-    // default to 50 if no value is found
-    final savedCap = prefs.getDouble('weekly_budget_cap') ?? 50.0;
+    final savedCap = prefs.getDouble(_budgetKey) ?? 50.0;
+    final savedDarkMode = prefs.getBool(_darkModeKey) ?? false;
 
     if (!mounted) return;
     
-    // update the state with the loaded budget 
     setState(() {
       _budgetCap = savedCap;
+      _isDarkMode = savedDarkMode;
       _isLoading = false;
     });
   }
     
-    
-   // save the budget to shared_preferences 
-  Future<void> _saveBudgetCap() async {  
+  Future<void> _saveSettings() async {  
     setState(() {
       _isSaving = true;
     });
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble('weekly_budget_cap', _budgetCap);
+    await prefs.setDouble(_budgetKey, _budgetCap);
+    await prefs.setBool(_darkModeKey, _isDarkMode);
+
+    // Apply the theme change globally across the app
+    MyApp.of(context)?.setThemeMode(_isDarkMode);
 
     if (!mounted) return;
 
@@ -57,7 +57,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Budget saved')),
+      const SnackBar(content: Text('Settings saved successfully!')),
     );
   }
 
@@ -67,54 +67,70 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         title: const Text('Settings'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            
-            // display current budget 
-            const Text(
-              'Weekly Budget',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            
-            // display current budget value
-            const SizedBox(height: 8),
-            Text(
-              '\$${_budgetCap.toStringAsFixed(0)}',
-              style: const TextStyle(fontSize: 24, color: Colors.blue),
-            ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Weekly Budget',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '\$${_budgetCap.toStringAsFixed(0)}',
+                    style: const TextStyle(fontSize: 24, color: Colors.blue),
+                  ),
+                  Slider(
+                    value: _budgetCap,
+                    min: 10.0,
+                    max: 200.0,
+                    divisions: 38,
+                    label: '\$${_budgetCap.toStringAsFixed(0)}',
+                    onChanged: (double value) {
+                      setState(() {
+                        _budgetCap = value;
+                      });
+                    },
+                  ),
+                  
+                  const Divider(height: 32),
 
-            // slider for budget adjustment
-            Slider(
-              value: _budgetCap,
-              min: 10.0,
-              max: 200.0,
-              divisions: 38, // increments by 5
-              label: '\$${_budgetCap.toStringAsFixed(0)}',
-              onChanged: (double value) {
-                setState(() {
-                  _budgetCap = value;
-                });
-              },
-            ),
+                  SwitchListTile(
+                    title: const Text(
+                      'Dark Mode',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    value: _isDarkMode,
+                    onChanged: (bool value) {
+                      setState(() {
+                        _isDarkMode = value;
+                      });
+                      // Optional: Update theme instantly on toggle without waiting for save
+                      MyApp.of(context)?.setThemeMode(value);
+                    },
+                  ),
 
-            // save button 
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _isSaving ? null : _saveBudgetCap,
-              child: _isSaving
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Save Settings'),
+                  const Spacer(),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _isSaving ? null : _saveSettings,
+                      child: _isSaving
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Save Settings'),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
-      ),
     );
   }
 }

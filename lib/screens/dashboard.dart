@@ -112,19 +112,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         title: const Text('Meals'),
         centerTitle: true,
-      actions: [
-    IconButton(
-      icon: const Icon(Icons.settings),
-      tooltip: 'Settings',
-      onPressed: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => const SettingsScreen(),
-          ),
-        );
-      },
-    ),
-  ],
 ),
       
       // if loading, show loading, else show the list of meals
@@ -172,7 +159,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                               const SizedBox(height: 8),
                               if (_allDashboardMeals.isEmpty)
-                                const Text('Tap + below to log your first meal.'),
+                                const Text('Tap Add Meal to log your first meal.'),
                             ],
                           ),
                         )
